@@ -401,9 +401,25 @@
             document.getElementById('key-input').value = pattern;
         }
 
+        let adminPassword = "";
+
         async function loadDashboardData() {
+            if (!adminPassword) {
+                adminPassword = prompt("Enter Admin Password:");
+                if (!adminPassword) return;
+            }
+
             try {
-                const res = await fetch('/api/data');
+                const res = await fetch('/api/data', {
+                    headers: { 'x-admin-password': adminPassword }
+                });
+                
+                if (res.status === 401) {
+                    alert("Invalid Admin Password!");
+                    adminPassword = "";
+                    return;
+                }
+                
                 const data = await res.json();
 
                 // Load Stats
@@ -459,7 +475,10 @@
         }
 
         async function toggleKey(key) {
-            const res = await fetch(`/api/keys/${key}/toggle`, { method: 'PATCH' });
+            const res = await fetch(`/api/keys/${key}/toggle`, { 
+                method: 'PATCH',
+                headers: { 'x-admin-password': adminPassword }
+            });
             if (res.ok) {
                 showNotification("Key status toggled!");
                 loadDashboardData();
@@ -467,7 +486,10 @@
         }
 
         async function resetHWID(key) {
-            const res = await fetch(`/api/keys/${key}/reset-hwid`, { method: 'POST' });
+            const res = await fetch(`/api/keys/${key}/reset-hwid`, { 
+                method: 'POST',
+                headers: { 'x-admin-password': adminPassword }
+            });
             if (res.ok) {
                 showNotification("HWID Link reset successfully!");
                 loadDashboardData();
@@ -476,7 +498,10 @@
 
         async function deleteKey(key) {
             if (!confirm(`Are you sure you want to delete ${key}?`)) return;
-            const res = await fetch(`/api/keys/${key}`, { method: 'DELETE' });
+            const res = await fetch(`/api/keys/${key}`, { 
+                method: 'DELETE',
+                headers: { 'x-admin-password': adminPassword }
+            });
             if (res.ok) {
                 showNotification("Key permanently deleted.");
                 loadDashboardData();
@@ -497,7 +522,10 @@
 
             const res = await fetch('/api/keys', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-password': adminPassword
+                },
                 body: JSON.stringify({ key, maxUses, note, hwidLocked })
             });
 
@@ -518,7 +546,10 @@
 
             const res = await fetch('/api/settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-admin-password': adminPassword
+                },
                 body: JSON.stringify({ hubName, scriptUrl })
             });
 
