@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ketamine123";
 
 const DB_PATH = path.join(__dirname, 'database', 'database.json');
 
@@ -92,14 +93,24 @@ app.get('/ketamineUI.lua', (req, res) => {
     }
 });
 
+// Admin Password Middleware
+function requireAdmin(req, res, next) {
+    const pwd = req.headers['x-admin-password'];
+    if (pwd === ADMIN_PASSWORD) {
+        next();
+    } else {
+        res.status(401).json({ error: "Unauthorized: Invalid Admin Password" });
+    }
+}
+
 // API: Get all keys and database details
-app.get('/api/data', (req, res) => {
+app.get('/api/data', requireAdmin, (req, res) => {
     const db = readDb();
     res.json(db);
 });
 
 // API: Add a key
-app.post('/api/keys', (req, res) => {
+app.post('/api/keys', requireAdmin, (req, res) => {
     const { key, expiresAt, maxUses, note, hwidLocked } = req.body;
     if (!key) {
         return res.status(400).json({ error: "Key is required" });
@@ -134,7 +145,7 @@ app.post('/api/keys', (req, res) => {
 });
 
 // API: Delete a key
-app.delete('/api/keys/:key', (req, res) => {
+app.delete('/api/keys/:key', requireAdmin, (req, res) => {
     const keyToDelete = req.params.key;
     const db = readDb();
     const index = db.keys.findIndex(k => k.key === keyToDelete);
@@ -152,7 +163,7 @@ app.delete('/api/keys/:key', (req, res) => {
 });
 
 // API: Toggle key status
-app.patch('/api/keys/:key/toggle', (req, res) => {
+app.patch('/api/keys/:key/toggle', requireAdmin, (req, res) => {
     const targetKey = req.params.key;
     const db = readDb();
     const keyData = db.keys.find(k => k.key === targetKey);
@@ -170,7 +181,7 @@ app.patch('/api/keys/:key/toggle', (req, res) => {
 });
 
 // API: Update settings
-app.post('/api/settings', (req, res) => {
+app.post('/api/settings', requireAdmin, (req, res) => {
     const { hubName, version, scriptUrl } = req.body;
     const db = readDb();
 
@@ -186,7 +197,7 @@ app.post('/api/settings', (req, res) => {
 });
 
 // API: Reset HWID for a key
-app.post('/api/keys/:key/reset-hwid', (req, res) => {
+app.post('/api/keys/:key/reset-hwid', requireAdmin, (req, res) => {
     const targetKey = req.params.key;
     const db = readDb();
     const keyData = db.keys.find(k => k.key === targetKey);
@@ -259,18 +270,6 @@ app.get('/api/validate', (req, res) => {
 
     // Game hub detection & validation
     let targetScriptUrl = db.settings.scriptUrl || "";
-    if (placeId) {
-        const gamesList = db.settings.games || {};
-        const matchedScript = gamesList[placeId.toString()];
-        if (matchedScript) {
-            targetScriptUrl = matchedScript;
-        } else {
-            return res.json({ 
-                status: "unsupported_game", 
-                message: "This game (ID: " + placeId + ") is not supported by Ketamine Hub" 
-            });
-        }
-    }
 
     keyData.uses = (keyData.uses || 0) + 1;
     
