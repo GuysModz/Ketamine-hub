@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ketamine Hub - Key Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0c0a12;
+            --bg-panel: #120e1c;
+            --bg-input: #1c162a;
+            --purple-main: #8c3cdc;
+            --purple-light: #b464ff;
+            --purple-glow: rgba(140, 60, 220, 0.4);
+            --purple-dark: #501e8c;
+            --text-primary: #e6dcf5;
+            --text-secondary: #a08cb9;
+            --text-dim: #645582;
+            --success: #50dc78;
+            --error: #dc3c50;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --transition-speed: 0.2s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-panel);
+            border-bottom: 2px solid var(--purple-dark);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .logo-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            text-shadow: 0 0 10px var(--purple-glow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-section span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 900px) {
+            .container {
+                grid-template-columns: 3fr 1fr;
+            }
+        }
+
+        .panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--purple-dark);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--purple-dark);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-input);
+            border: 1px dashed var(--purple-dark);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            margin-top: 0.2rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-input);
+            border: 1px solid var(--purple-dark);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all var(--transition-speed);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--purple-main);
+            box-shadow: 0 0 8px var(--purple-glow);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+            border: none;
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity var(--transition-speed), transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--purple-dark);
+        }
+
+        .btn-danger {
+            background: var(--error);
+        }
+
+        /* Keys Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--purple-dark);
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            background-color: rgba(28, 22, 42, 0.5);
+        }
+
+        tr:hover td {
+            background-color: rgba(28, 22, 42, 0.2);
+        }
+
+        .key-badge {
+            font-family: monospace;
+            background-color: var(--bg-input);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--purple-dark);
+        }
+
+        .badge-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background-color: rgba(80, 220, 120, 0.2);
+            color: var(--success);
+        }
+
+        .badge-inactive {
+            background-color: rgba(220, 60, 80, 0.2);
+            color: var(--error);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 0.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--purple-dark);
+            background-color: var(--bg-input);
+            transition: all var(--transition-speed);
+        }
+
+        .btn-icon:hover {
+            background-color: var(--purple-dark);
+        }
+
+        /* Notification banner */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background-color: var(--bg-panel);
+            border-left: 4px solid var(--purple-main);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <h1>💉 Ketamine Hub</h1>
+            <span>Key management server</span>
+        </div>
+        <div>
+            <button class="btn btn-secondary" onclick="generateKeyString()" style="width: auto;">✨ Auto Gen Key</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Main Keys Management Area -->
+        <div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Keys</div>
+                    <div id="stat-total" class="stat-val">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Connections</div>
+                    <div id="stat-active" class="stat-val">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Server Hits</div>
+                    <div id="stat-validations" class="stat-val">0</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">
+                    <span>Keys Database</span>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Key Identifier</th>
+                                <th>Status</th>
+                                <th>HWID Locked</th>
+                                <th>Uses</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Actions & Settings -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Create Key Panel -->
+            <div class="panel">
+                <div class="panel-title">Create Key</div>
+                <form id="create-key-form">
+                    <div class="form-group">
+                        <label for="key-input">Key String</label>
+                        <input type="text" id="key-input" placeholder="KETAMINE-KEY-HERE" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="key-uses">Max Uses</label>
+                        <input type="number" id="key-uses" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="key-note">Note / Owner Name</label>
+                        <input type="text" id="key-note" placeholder="Owner username">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;">
+                        <input type="checkbox" id="key-hwid-lock" checked style="width: auto; margin: 0; cursor: pointer;">
+                        <label for="key-hwid-lock" style="margin: 0; cursor: pointer; user-select: none;">Enable HWID Lock</label>
+                    </div>
+                    <button type="submit" class="btn">Create Key</button>
+                </form>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="panel">
+                <div class="panel-title">Server Settings</div>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="settings-hub">Hub Name</label>
+                        <input type="text" id="settings-hub">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-script">Payload Link</label>
+                        <input type="url" id="settings-script">
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Save Config</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="notif" class="notification">Key Copied to Clipboard!</div>
+
+    <script>
+        function showNotification(text) {
+            const notif = document.getElementById('notif');
+            notif.innerText = text;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        function generateKeyString() {
+            const pattern = 'KETAMINE-xxxx-xxxx-xxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16).toUpperCase();
+            });
+            document.getElementById('key-input').value = pattern;
+        }
+
+        async function loadDashboardData() {
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+
+                // Load Stats
+                document.getElementById('stat-total').innerText = data.keys.length;
+                document.getElementById('stat-active').innerText = data.keys.filter(k => k.active).length;
+                document.getElementById('stat-validations').innerText = data.stats.totalValidations || 0;
+
+                // Load Settings Fields
+                document.getElementById('settings-hub').value = data.settings.hubName || "";
+                document.getElementById('settings-script').value = data.settings.scriptUrl || "";
+
+                // Populate Keys Table
+                const tbody = document.getElementById('keys-tbody');
+                tbody.innerHTML = '';
+
+                data.keys.forEach(k => {
+                    const tr = document.createElement('tr');
+                    
+                    const expires = k.expiresAt ? new Date(k.expiresAt).toLocaleDateString() : 'Never';
+                    
+                    let hwidText = 'Disabled';
+                    if (k.hwidLocked !== false) {
+                        hwidText = k.hwid ? k.hwid.substring(0, 12) + "..." : 'Unlinked';
+                    }
+
+                    const statusClass = k.active ? 'badge-active' : 'badge-inactive';
+                    const statusText = k.active ? 'Active' : 'Disabled';
+
+                    tr.innerHTML = `
+                        <td>
+                            <span class="key-badge">${k.key}</span>
+                            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">${k.note || 'No description'}</div>
+                        </td>
+                        <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                        <td><span title="${k.hwid || (k.hwidLocked !== false ? 'Unbound' : 'No HWID lock')}">${hwidText}</span></td>
+                        <td>${k.uses} / ${k.maxUses}</td>
+                        <td>${expires}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-icon" title="Toggle Lock" onclick="toggleKey('${k.key}')">🔌</button>
+                                <button class="btn-icon" title="Reset HWID Link" onclick="resetHWID('${k.key}')" ${k.hwidLocked === false ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''}>🔄</button>
+                                <button class="btn-icon" title="Copy Key" onclick="copyToClipboard('${k.key}')">📋</button>
+                                <button class="btn-icon" title="Delete" style="border-color: var(--error);" onclick="deleteKey('${k.key}')">🗑️</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (err) {
+                console.error("Dashboard failed to retrieve data:", err);
+            }
+        }
+
+        async function toggleKey(key) {
+            const res = await fetch(`/api/keys/${key}/toggle`, { method: 'PATCH' });
+            if (res.ok) {
+                showNotification("Key status toggled!");
+                loadDashboardData();
+            }
+        }
+
+        async function resetHWID(key) {
+            const res = await fetch(`/api/keys/${key}/reset-hwid`, { method: 'POST' });
+            if (res.ok) {
+                showNotification("HWID Link reset successfully!");
+                loadDashboardData();
+            }
+        }
+
+        async function deleteKey(key) {
+            if (!confirm(`Are you sure you want to delete ${key}?`)) return;
+            const res = await fetch(`/api/keys/${key}`, { method: 'DELETE' });
+            if (res.ok) {
+                showNotification("Key permanently deleted.");
+                loadDashboardData();
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showNotification("Copied key directly to clipboard!");
+        }
+
+        document.getElementById('create-key-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const key = document.getElementById('key-input').value;
+            const maxUses = document.getElementById('key-uses').value;
+            const note = document.getElementById('key-note').value;
+            const hwidLocked = document.getElementById('key-hwid-lock').checked;
+
+            const res = await fetch('/api/keys', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key, maxUses, note, hwidLocked })
+            });
+
+            if (res.ok) {
+                showNotification("Authentication key registered!");
+                document.getElementById('create-key-form').reset();
+                loadDashboardData();
+            } else {
+                const err = await res.json();
+                alert(`Error: ${err.error}`);
+            }
+        });
+
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const hubName = document.getElementById('settings-hub').value;
+            const scriptUrl = document.getElementById('settings-script').value;
+
+            const res = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hubName, scriptUrl })
+            });
+
+            if (res.ok) {
+                showNotification("Configuration saved!");
+                loadDashboardData();
+            }
+        });
+
+        // Init
+        loadDashboardData();
+        generateKeyString();
+    </script>
+</body>
+</html>

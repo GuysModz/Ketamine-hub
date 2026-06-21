@@ -1,0 +1,65 @@
+{
+  "keys": [
+    {
+      "key": "KETAMINE-XXXX-XXXX",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "expiresAt": null,
+      "usedBy": null,
+      "hwid": null,
+      "maxUses": 1,
+      "uses": 0,
+      "active": true,
+      "note": "Default test key"
+    },
+    {
+      "key": "KETAMINE-4AD2-2720-1633",
+      "createdAt": "2026-06-21T08:32:59.753Z",
+      "expiresAt": null,
+      "usedBy": null,
+      "hwid": null,
+      "maxUses": 1,
+      "uses": 0,
+      "active": true,
+      "note": "",
+      "hwidLocked": true
+    },
+    {
+      "key": "KETAMINE-4AD2-2720-1633fbx",
+      "createdAt": "2026-06-21T08:33:05.290Z",
+      "expiresAt": null,
+      "usedBy": null,
+      "hwid": null,
+      "maxUses": 1,
+      "uses": 0,
+      "active": true,
+      "note": "",
+      "hwidLocked": false
+    },
+    {
+      "key": "KETAMINE-7415-85FA-173D",
+      "createdAt": "2026-06-21T08:34:44.909Z",
+      "expiresAt": null,
+      "usedBy": "Cynical294",
+      "hwid": "F7B72A64-0276-45D1-B852-83CCEE050A6C",
+      "maxUses": 1,
+      "uses": 1,
+      "active": true,
+      "note": "",
+      "hwidLocked": true
+    }
+  ],
+  "settings": {
+    "hubName": "Ketamine Hub",
+    "version": "1.0",
+    "scriptUrl": "http://localhost:3000/payload.lua",
+    "games": {
+      "123456789": "http://localhost:3000/payload.lua",
+      "987654321": "https://pastebin.com/raw/example2"
+    }
+  },
+  "stats": {
+    "totalKeysGenerated": 4,
+    "totalValidations": 1,
+    "lastValidation": "2026-06-21T08:34:49.261Z"
+  }
+}
